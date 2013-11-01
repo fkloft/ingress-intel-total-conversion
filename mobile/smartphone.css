@@ -1,12 +1,25 @@
 body {
   background: #000;
   color: #fff;
+  position: absolute;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible;
+}
+
+#map {
+  width: auto !important;
+  height: auto !important;
+  position: absolute;
 }
 
 #updatestatus {
-  background: #262c32;
-  width: 100%;
+  background: rgba(17, 17, 17, 0.6);
   color: #d4d5d6;
+  width: auto;
+  left: 0;
+  right: 0;
+  position: absolute;
   border: 0;
   padding: 0;
 }
@@ -88,6 +101,9 @@ body {
   margin-top: 5px !important;
   margin-left: 5px !important;
 }
+.leaflet-bottom {
+    bottom: 25px;
+}
 
 .leaflet-control-layers {
   display: none;    /* hide layer control - it's now handled by an in-app option */
@@ -133,7 +149,9 @@ body {
 }
 
 #chatinput {
-  width: 100%;
+  left: 0;
+  right: 0;
+  width: auto;
   height: 30px;
 }
 
@@ -156,11 +174,14 @@ body {
 }
 
 #scrollwrapper {
-  bottom: 0;
   max-height: none !important;
-  width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  position: absolute !important;
+  top: 0;
+  left: 0;
   right: 0;
-  left:0;
+  bottom: 0;
 }
 
 #sidebar {

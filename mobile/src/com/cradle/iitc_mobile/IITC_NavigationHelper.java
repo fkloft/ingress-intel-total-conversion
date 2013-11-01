@@ -106,8 +106,9 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     private final SharedPreferences mPrefs;
     private final NavigationAdapter mNavigationAdapter;
     private final DrawerLayout mDrawerLayout;
-    private final ListView mDrawerLeft;
+    private final View mDrawerLeft;
     private final View mDrawerRight;
+    private final ListView mNavigationList;
 
     private boolean mDesktopMode = false;
     private boolean mIsLoading;
@@ -120,18 +121,20 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
 
         mIitc = activity;
         mActionBar = bar;
-        mDrawerLeft = (ListView) activity.findViewById(R.id.left_drawer);
+        mDrawerLeft = activity.findViewById(R.id.left_drawer);
         mDrawerRight = activity.findViewById(R.id.right_drawer);
         mDrawerLayout = (DrawerLayout) activity.findViewById(R.id.drawer_layout);
+
+        mNavigationList = (ListView) activity.findViewById(R.id.navigation_list);
 
         mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
 
         mActionBar.setDisplayShowHomeEnabled(true); // show icon
 
         mNavigationAdapter = new NavigationAdapter();
-        mDrawerLeft.setAdapter(mNavigationAdapter);
-        mDrawerLeft.setOnItemClickListener(this);
-        mDrawerLeft.setItemChecked(0, true);
+        mNavigationList.setAdapter(mNavigationAdapter);
+        mNavigationList.setOnItemClickListener(this);
+        mNavigationList.setItemChecked(0, true);
         mDrawerLayout.setDrawerListener(this);
 
         onPrefChanged(); // also calls updateActionBar()
@@ -188,7 +191,7 @@ public class IITC_NavigationHelper extends ActionBarDrawerToggle implements OnIt
     private void updateActionBar() {
         int position = mNavigationAdapter.getPosition(mPane);
         if (position >= 0 && position < mNavigationAdapter.getCount()) {
-            mDrawerLeft.setItemChecked(position, true);
+            mNavigationList.setItemChecked(position, true);
         }
 
         if (mDesktopMode) {

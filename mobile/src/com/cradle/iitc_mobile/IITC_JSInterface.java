@@ -160,4 +160,9 @@ public class IITC_JSInterface {
             }
         });
     }
+
+    @JavascriptInterface
+    public String getPaddings() {
+        return mIitc.getWebView().getPaddings().flattenToString();
+    }
 }

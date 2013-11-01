@@ -105,6 +105,28 @@ window.smartphoneInfo = function(data) {
   $('#mobileinfo').html(t);
 }
 
+window.setMobilePadding = function() {
+  if (typeof android !== 'undefined' && android && android.getPaddings) {
+    // left top right bottom
+    var paddings = android.getPaddings().split(" ");
+
+    $("body").css({
+      left:   (paddings[0]/window.devicePixelRatio) + "px",
+      top:    (paddings[1]/window.devicePixelRatio) + "px",
+      right:  (paddings[2]/window.devicePixelRatio) + "px",
+      bottom: (paddings[3]/window.devicePixelRatio) + "px"
+    });
+    $("#map").css({
+      left:   (-paddings[0]/window.devicePixelRatio) + "px",
+      top:    (-paddings[1]/window.devicePixelRatio) + "px",
+      right:  (-paddings[2]/window.devicePixelRatio) + "px",
+      bottom: (-paddings[3]/window.devicePixelRatio) + "px"
+    });
+    if(window.map)
+      window.map.invalidateSize();
+  }
+}
+
 window.runOnSmartphonesAfterBoot = function() {
   if(!isSmartphone()) return;
   console.warn('running smartphone post boot stuff');
@@ -150,6 +172,8 @@ window.runOnSmartphonesAfterBoot = function() {
       });
     });
   });
+
+  window.setMobilePadding();
 
   // Force lower render limits for mobile
   window.VIEWPORT_PAD_RATIO = 0.1;

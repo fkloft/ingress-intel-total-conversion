@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -47,6 +48,7 @@ public class IITC_WebView extends WebView {
     private String mDefaultUserAgent;
     private final String mDesktopUserAgent = "Mozilla/5.0 (X11; Linux x86_64; rv:17.0)" +
             " Gecko/20130810 Firefox/17.0 Iceweasel/17.0.8";
+    private Rect mPaddings = new Rect(0, 0, 0, 0);
 
     // init web view
     private void iitc_init(Context c) {
@@ -83,7 +85,7 @@ public class IITC_WebView extends WebView {
              */
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin,
-                                                           GeolocationPermissions.Callback callback) {
+                    GeolocationPermissions.Callback callback) {
                 callback.invoke(origin, true, false);
             }
 
@@ -182,7 +184,10 @@ public class IITC_WebView extends WebView {
     @Override
     public void setSystemUiVisibility(int visibility) {
         getHandler().postDelayed(mNavHider, 2000);
-        super.setSystemUiVisibility(visibility);
+        super.setSystemUiVisibility(visibility
+                | SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | SYSTEM_UI_FLAG_LAYOUT_STABLE);
     }
 
     @Override
@@ -305,5 +310,20 @@ public class IITC_WebView extends WebView {
         String ua = mSharedPrefs.getBoolean("pref_fake_user_agent", false) ? mDesktopUserAgent : mDefaultUserAgent;
         Log.d("iitcm", "setting user agent to: " + ua);
         mSettings.setUserAgentString(ua);
+    }
+
+    @Override
+    protected boolean fitSystemWindows(Rect insets) {
+        synchronized (mPaddings) {
+            mPaddings = new Rect(insets);
+        }
+        loadUrl("javascript:window.setMobilePadding()");
+        return true;
+    }
+
+    public Rect getPaddings() {
+        synchronized (mPaddings) {
+            return this.mPaddings;
+        }
     }
 }
