@@ -60,6 +60,9 @@ import java.util.Stack;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.cradle.iitc_mobile.async.*;
+import android.content.pm.*;
+import android.app.*;
 
 public class IITC_Mobile extends Activity
         implements OnSharedPreferenceChangeListener, NfcAdapter.CreateNdefMessageCallback, OnItemLongClickListener {
@@ -588,7 +591,7 @@ public class IITC_Mobile extends Activity
             case R.id.action_settings: // start settings activity
                 final Intent intent = new Intent(this, PreferenceActivity.class);
                 try {
-                    intent.putExtra("iitc_version", mFileManager.getIITCVersion());
+                    intent.putExtra("iitc_version", mFileManager.getIITCInfo().get("version") );
                 } catch (final IOException e) {
                     Log.w(e);
                     return true;
@@ -707,7 +710,39 @@ public class IITC_Mobile extends Activity
         mDialogStack.remove(id);
         mDialogStack.push(id);
     }
-
+		
+		public void checkForUpdate(final boolean quiet) {
+				new UpdateCheck(this, new UpdateCheck.Callback() {
+						@Override
+						public void onUpdateInfoLoaded(UpdateCheck.UpdateInfo info) {
+							if(info == null) {
+									if(!quiet) {
+											new AlertDialog.Builder(IITC_Mobile.this)
+												.setTitle(R.string.app_name)
+												.setMessage("Could not load current version information!")
+												.setCancelable(true)
+												.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+														@Override
+														public void onClick(DialogInterface dialog, int button) {
+																dialog.cancel();
+														}
+												})
+												.show();
+									}
+							}
+							int versionCode;
+							try {
+									final PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+									versionCode = pInfo.versionCode;
+							} catch(PackageManager.NameNotFoundException e) {
+									return;
+							}
+							
+							
+						}
+				}).execute();
+		}
+		
     // called by the javascript interface
     public void dialogOpened(final String id, final boolean open) {
         if (open) {

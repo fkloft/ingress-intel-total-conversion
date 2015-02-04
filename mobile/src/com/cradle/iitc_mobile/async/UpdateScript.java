@@ -18,18 +18,19 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import android.content.*;
 
 public class UpdateScript extends AsyncTask<String, Void, Boolean> {
 
-    private final Activity mActivity;
+    private final Context mContext;
     private String mFilePath;
     private String mScript;
     private HashMap<String, String> mScriptInfo;
     private final boolean mForceSecureUpdates;
 
-    public UpdateScript(final Activity activity) {
-        mActivity = activity;
-        mForceSecureUpdates = PreferenceManager.getDefaultSharedPreferences(mActivity)
+    public UpdateScript(final Context context) {
+        mContext=context;
+        mForceSecureUpdates = PreferenceManager.getDefaultSharedPreferences(mContext)
                 .getBoolean("pref_secure_updates", true);
     }
 
@@ -47,7 +48,7 @@ public class UpdateScript extends AsyncTask<String, Void, Boolean> {
 
             if (!isUpdateAllowed(updateURL)) return false;
 
-            final File updateFile = File.createTempFile("iitc.update", ".meta.js", mActivity.getCacheDir());
+            final File updateFile = File.createTempFile("iitc.update", ".meta.js", mContext.getCacheDir());
             IITC_FileManager.copyStream(new URL(updateURL).openStream(), new FileOutputStream(updateFile), true);
 
             final HashMap<String, String> updateInfo =
@@ -99,7 +100,7 @@ public class UpdateScript extends AsyncTask<String, Void, Boolean> {
     protected void onPostExecute(final Boolean updated) {
         if (updated) {
             final String name = IITC_FileManager.getScriptInfo(mScript).get("name");
-            new AlertDialog.Builder(mActivity)
+            new AlertDialog.Builder(mContext)
                     .setTitle("Plugin updated")
                     .setMessage(name)
                     .setCancelable(true)
@@ -113,7 +114,7 @@ public class UpdateScript extends AsyncTask<String, Void, Boolean> {
                         @Override
                         public void onClick(final DialogInterface dialog, final int which) {
                             dialog.cancel();
-                            ((IITC_Mobile) mActivity).reloadIITC();
+                            ((IITC_Mobile) mContext).reloadIITC();
                         }
                     })
                     .create()
