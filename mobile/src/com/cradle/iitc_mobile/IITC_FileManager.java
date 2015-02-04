@@ -158,7 +158,7 @@ public class IITC_FileManager {
             try {
                 return new FileInputStream(file);
             } catch (final FileNotFoundException e) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(mContext, "File " + mIitcPath +
@@ -173,6 +173,10 @@ public class IITC_FileManager {
 
         // load plugins from asset folder
         return mAssetManager.open(filename);
+    }
+
+    private void runOnUiThread(final Runnable runnable) {
+        new Handler(Looper.getMainLooper()).post(runnable);
     }
 
     private WebResourceResponse getFileRequest(final Uri uri) {
