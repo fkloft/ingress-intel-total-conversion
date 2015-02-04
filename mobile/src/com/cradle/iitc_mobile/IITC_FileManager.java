@@ -4,12 +4,15 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -43,8 +46,6 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import android.content.*;
-import android.os.*;
 
 public class IITC_FileManager {
     private static final WebResourceResponse EMPTY =
@@ -157,7 +158,7 @@ public class IITC_FileManager {
             try {
                 return new FileInputStream(file);
             } catch (final FileNotFoundException e) {
-								new Handler(Looper.getMainLooper()).post(new Runnable() {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(mContext, "File " + mIitcPath +

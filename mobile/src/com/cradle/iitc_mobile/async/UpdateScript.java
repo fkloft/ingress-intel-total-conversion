@@ -1,7 +1,7 @@
 package com.cradle.iitc_mobile.async;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
-import android.content.*;
 
 public class UpdateScript extends AsyncTask<String, Void, Boolean> {
 
@@ -29,7 +28,7 @@ public class UpdateScript extends AsyncTask<String, Void, Boolean> {
     private final boolean mForceSecureUpdates;
 
     public UpdateScript(final Context context) {
-        mContext=context;
+        mContext = context;
         mForceSecureUpdates = PreferenceManager.getDefaultSharedPreferences(mContext)
                 .getBoolean("pref_secure_updates", true);
     }
