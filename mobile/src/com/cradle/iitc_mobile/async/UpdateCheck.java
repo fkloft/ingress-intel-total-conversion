@@ -1,14 +1,19 @@
 package com.cradle.iitc_mobile.async;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 
 import com.cradle.iitc_mobile.IITC_FileManager;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,26 +25,41 @@ public class UpdateCheck extends AsyncTask<Void, Void, UpdateCheck.UpdateInfo> {
     private final Context mContext;
     private final Callback mCallback;
     private final IITC_FileManager mFileManager;
+    private final SharedPreferences mPrefs;
 
     public UpdateCheck(final Context context, final Callback callback) {
         mContext = context;
         mCallback = callback;
         mFileManager = new IITC_FileManager(mContext);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
     }
 
     @Override
     protected UpdateCheck.UpdateInfo doInBackground(final Void... p)
     {
-        HashMap<String, String> info;
         try {
-            info = mFileManager.getIITCInfo();
-        } catch (final IOException e) {
+            final HashMap<String, String> info = mFileManager.getIITCInfo();
+
+            final Matcher matcher = PATTERN_BUILDNAME.matcher(info.get("description"));
+            if (matcher == null || !matcher.matches())
+                return null;
+
+            final String buildName = matcher.group(1);
+
+            final String base = mPrefs.getBoolean("pref_force_https", true)
+                    ? "https://secure.jonatkins.com/iitc"
+                    : "http://iitc.jonatkins.com";
+
+            final HttpGet request = new HttpGet(base + "/versioncheck.php&mobile=1?build=" + buildName);
+            final HttpResponse response = new DefaultHttpClient().execute(request);
+
+            final String content = EntityUtils.toString(response.getEntity());
+
+            return new UpdateInfo(new JSONObject(content));
+        } catch (final Exception e) {
             e.printStackTrace();
             return null;
         }
-
-        final Matcher matcher = PATTERN_BUILDNAME.matcher(info.get("description"));
-        return null;
     }
 
     @Override

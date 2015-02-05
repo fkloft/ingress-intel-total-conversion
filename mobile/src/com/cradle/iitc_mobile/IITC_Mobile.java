@@ -712,32 +712,51 @@ public class IITC_Mobile extends Activity
     }
 
     public void checkForUpdate(final boolean quiet) {
+        final DialogInterface.OnClickListener onCancelListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(final DialogInterface dialog, final int which) {
+                dialog.cancel();
+            }
+        };
+
         new UpdateCheck(this, new UpdateCheck.Callback() {
             @Override
-            public void onUpdateInfoLoaded(final UpdateCheck.UpdateInfo info) {
-                if (info == null) {
+            public void onUpdateInfoLoaded(final UpdateCheck.UpdateInfo infoAvailable) {
+                if (infoAvailable == null) {
                     if (!quiet) {
                         new AlertDialog.Builder(IITC_Mobile.this)
                                 .setTitle(R.string.app_name)
-                                .setMessage("Could not load current version information!")
+                                .setMessage("Could not load current version information!") // TODO l10n
                                 .setCancelable(true)
-                                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(final DialogInterface dialog, final int button) {
-                                        dialog.cancel();
-                                    }
-                                })
+                                .setNeutralButton(android.R.string.ok, onCancelListener)
                                 .show();
                     }
+                    return;
                 }
-                int versionCode;
+
+                final PackageInfo infoInstalled;
                 try {
-                    final PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-                    versionCode = pInfo.versionCode;
+                    infoInstalled = getPackageManager().getPackageInfo(getPackageName(), 0);
                 } catch (final PackageManager.NameNotFoundException e) {
                     return;
                 }
 
+                if (infoInstalled.versionCode >= infoAvailable.versionCode) return;
+
+                new AlertDialog.Builder(IITC_Mobile.this)
+                        // TODO l10n
+                        .setTitle("IITC Mobile is out of date.")
+                        .setMessage("Installed version: " + infoInstalled.versionName
+                                + "\nAvailable version: " + infoAvailable.versionName
+                                + "\nUpdate channel: " + infoAvailable.name)
+                        .setNegativeButton(android.R.string.cancel, onCancelListener)
+                        .setPositiveButton("Install", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface dialog, final int which) {
+                                updateIitc(infoAvailable.downloadUrl);
+                            }
+                        })
+                        .show();
             }
         }).execute();
     }
